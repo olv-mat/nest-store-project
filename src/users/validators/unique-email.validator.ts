@@ -8,13 +8,13 @@ import { Injectable } from "@nestjs/common";
 })
 export class UniqueEmailValidator implements ValidatorConstraintInterface {
 
-    constructor(private userRepository:UserRepository) {}
+    constructor(private userRepository: UserRepository) { }
 
     async validate(value: any, validationArguments?: ValidationArguments): Promise<boolean> {
         const emailAlreadyUsed = this.userRepository.selectByEmail(value) !== undefined;
         return !emailAlreadyUsed;
     }
-    
+
 }
 
 export const UniqueEmail = (validationArguments: ValidationOptions) => {

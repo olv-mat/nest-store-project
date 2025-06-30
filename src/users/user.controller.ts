@@ -9,7 +9,7 @@ import { UpdateUserDTO } from "./dtos/UpdateUser.dto";
 @Controller("users")
 export class UserController {
 
-    constructor(private userRepository:UserRepository) {}
+    constructor(private userRepository: UserRepository) { }
 
     @Get()
     public async selectUsers() {
@@ -25,7 +25,7 @@ export class UserController {
     }
 
     @Post()
-    public async createUser(@Body() request:CreateUserDTO) {
+    public async createUser(@Body() request: CreateUserDTO) {
 
         const userEntity = new UserEntity();
 
@@ -43,7 +43,7 @@ export class UserController {
     }
 
     @Put("/:id")
-    public async updateUser(@Param("id") id:string, @Body() request:UpdateUserDTO) {
+    public async updateUser(@Param("id") id: string, @Body() request: UpdateUserDTO) {
         const updatedUser = this.userRepository.update(id, request);
         return {
             user: this.instanceListUserDTO(updatedUser),
@@ -52,7 +52,7 @@ export class UserController {
     }
 
     @Delete("/:id")
-    public async deleteUser(@Param("id") id:string) {
+    public async deleteUser(@Param("id") id: string) {
         const deletedUser = this.userRepository.delete(id);
         return {
             user: this.instanceListUserDTO(deletedUser),
@@ -60,7 +60,7 @@ export class UserController {
         }
     }
 
-    private instanceListUserDTO(entity:UserEntity) {
+    private instanceListUserDTO(entity: UserEntity) {
         return new ListUserDTO(
             entity.id,
             entity.name

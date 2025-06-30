@@ -10,11 +10,11 @@ export class UserRepository {
         return this.users;
     }
 
-    public create(user:UserEntity) {
+    public create(user: UserEntity) {
         this.users.push(user);
     }
 
-    public update(id:string, data:Partial<UserEntity>) {
+    public update(id: string, data: Partial<UserEntity>) {
 
         const user = this.selectById(id);
         Object.entries(data).forEach(([key, value]) => {
@@ -25,7 +25,7 @@ export class UserRepository {
         return user;
     }
 
-    public delete(id:string) {
+    public delete(id: string) {
 
         const user = this.selectById(id);
         this.users = this.users.filter(
@@ -42,7 +42,7 @@ export class UserRepository {
         return possibleUser;
     }
 
-    private selectById(id:string) {
+    private selectById(id: string) {
 
         const possibleUser = this.users.find(
             user => user.id === id
