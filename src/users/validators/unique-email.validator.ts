@@ -11,7 +11,7 @@ export class UniqueEmailValidator implements ValidatorConstraintInterface {
     constructor(private userRepository:UserRepository) {}
 
     async validate(value: any, validationArguments?: ValidationArguments): Promise<boolean> {
-        const emailAlreadyUsed = await this.userRepository.emailAlreadyUsed(value);
+        const emailAlreadyUsed = this.userRepository.selectByEmail(value) !== undefined;
         return !emailAlreadyUsed;
     }
     

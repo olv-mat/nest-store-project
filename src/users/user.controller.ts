@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { UserRepository } from "./user.repository";
 import { CreateUserDTO } from "./dtos/CreateUser.dto";
 import { ListUserDTO } from "./dtos/ListUser.dto";
@@ -12,49 +12,59 @@ export class UserController {
     constructor(private userRepository:UserRepository) {}
 
     @Get()
-    async selectUsers() {
+    public async selectUsers() {
 
-        const savedUsers = await this.userRepository.select();
-        const users = savedUsers.map(
-            user => new ListUserDTO(
-                user.id,
-                user.name
+        const storedUsers = this.userRepository.select();
+        const users = storedUsers.map(
+            storedUser => new ListUserDTO(
+                storedUser.id,
+                storedUser.name
             )
         );
         return users;
     }
 
     @Post()
-    async createUser(@Body() userData: CreateUserDTO) {
+    public async createUser(@Body() request:CreateUserDTO) {
 
         const userEntity = new UserEntity();
 
         userEntity.id = uuid();
-        userEntity.name = userData.name;
-        userEntity.email = userData.email;
-        userEntity.password = userData.password;
+        userEntity.name = request.name;
+        userEntity.email = request.email;
+        userEntity.password = request.password;
 
         this.userRepository.create(userEntity);
 
         return {
-            user: new ListUserDTO(
-                userEntity.id,
-                userEntity.name
-            ),
+            user: this.instanceListUserDTO(userEntity),
             message: "user created successfully"
         }
     }
 
     @Put("/:id")
-    async updateUser(@Param("id") id:string, @Body() request:UpdateUserDTO) {
-        const userUpdated = await this.userRepository.update(id, request);
+    public async updateUser(@Param("id") id:string, @Body() request:UpdateUserDTO) {
+        const updatedUser = this.userRepository.update(id, request);
         return {
-            user: new ListUserDTO(
-                userUpdated.id,
-                userUpdated.name
-            ),
+            user: this.instanceListUserDTO(updatedUser),
             message: "user updated successfully"
         }
+    }
+
+    @Delete("/:id")
+    public async deleteUser(@Param("id") id:string) {
+        const deletedUser = this.userRepository.delete(id);
+        return {
+            user: this.instanceListUserDTO(deletedUser),
+            message: "user deleted successfully"
+        }
+    }
+
+    private instanceListUserDTO(entity:UserEntity) {
+        return new ListUserDTO(
+            entity.id,
+            entity.name
+        );
     }
 
 }

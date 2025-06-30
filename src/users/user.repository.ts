@@ -6,15 +6,44 @@ export class UserRepository {
 
     private users: UserEntity[] = [];
 
-    async select() {
+    public select() {
         return this.users;
     }
 
-    async create(user:UserEntity) {
+    public create(user:UserEntity) {
         this.users.push(user);
     }
 
-    async update(id:string, data:Partial<UserEntity>) {
+    public update(id:string, data:Partial<UserEntity>) {
+
+        const user = this.selectById(id);
+        Object.entries(data).forEach(([key, value]) => {
+            if (value !== undefined) {
+                user[key] = value;
+            }
+        });
+        return user;
+    }
+
+    public delete(id:string) {
+
+        const user = this.selectById(id);
+        this.users = this.users.filter(
+            storedUser => storedUser.id !== id
+        );
+        return user;
+    }
+
+    public selectByEmail(email: string) {
+
+        const possibleUser = this.users.find(
+            user => user.email == email
+        );
+        return possibleUser;
+    }
+
+    private selectById(id:string) {
+
         const possibleUser = this.users.find(
             user => user.id === id
         );
@@ -23,19 +52,7 @@ export class UserRepository {
             throw new Error("User Not Found");
         }
 
-        Object.entries(data).forEach(([key, value]) => {
-            if (value) {
-                possibleUser[key] = value;
-            }
-        });
-
         return possibleUser;
     }
 
-    async emailAlreadyUsed(email: string) {
-        const used = this.users.find(
-            user => user.email == email
-        );
-        return used !== undefined;
-    }
 }
