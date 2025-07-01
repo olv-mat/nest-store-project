@@ -1,6 +1,8 @@
 import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
-import { UserRepository } from "../user.repository";
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserEntity } from "../user.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 @ValidatorConstraint({
@@ -8,23 +10,23 @@ import { Injectable } from "@nestjs/common";
 })
 export class UniqueEmailValidator implements ValidatorConstraintInterface {
 
-    constructor(private userRepository: UserRepository) { }
+    constructor(@InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>) { }
 
     async validate(value: any, validationArguments?: ValidationArguments): Promise<boolean> {
-        const emailAlreadyUsed = this.userRepository.selectByEmail(value) !== undefined;
-        return !emailAlreadyUsed;
+        const user = await this.userRepository.findOne({ where: { email: value } });
+        return !user;
     }
 
 }
 
-export const UniqueEmail = (validationArguments: ValidationOptions) => {
-    return (obj: Object, property: string) => {
+export function UniqueEmail(validationOptions?: ValidationOptions) {
+    return function (object: Object, propertyName: string) {
         registerDecorator({
-            target: obj.constructor,
-            propertyName: property,
-            options: validationArguments,
+            target: object.constructor,
+            propertyName: propertyName,
+            options: validationOptions,
             constraints: [],
-            validator: UniqueEmailValidator
+            validator: UniqueEmailValidator,
         });
-    }
+    };
 }
